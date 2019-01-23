@@ -9,6 +9,10 @@ class Field extends Object {
     this.fields.push(new FieldPoint(vec))
   }
 
+  updateAngle(index, angle) {
+    this.fields[index].z = angle.heading()
+  }
+
   run() {
     for (var i = 0; i < this.fields.length; i++) {
       this.fields[i].display()
@@ -19,17 +23,19 @@ class Field extends Object {
 class FieldPoint extends Object {
   constructor(vec) {
     super()
-    this.loc = vec.copy()
+    this.x = vec.x
+    this.y = vec.y
+    this.z = vec.z
   }
 
   display() {
-    strokeWeight(4)
+    strokeWeight(1)
     stroke(0)
 
     push()
-    translate(this.loc.x, this.loc.y)
-    rotate(this.loc.z * TWO_PI)
-    line(0,0,10,0)
+    translate(this.x, this.y)
+    rotate(this.z)
+    line(0,0,20,0)
     pop()
   }
 }
