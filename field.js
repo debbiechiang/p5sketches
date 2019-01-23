@@ -10,7 +10,7 @@ class Field extends Object {
   }
 
   updateAngle(index, angle) {
-    this.fields[index].z = angle.heading()
+    this.fields[index].setZ(angle.heading())
   }
 
   run() {
@@ -26,6 +26,10 @@ class FieldPoint extends Object {
     this.x = vec.x
     this.y = vec.y
     this.z = vec.z
+  }
+
+  setZ(rotation) {
+    this.z = rotation
   }
 
   display() {
