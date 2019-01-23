@@ -4,15 +4,15 @@ let fps
 let field = []
 let xoff, yoff, zoff = 0
 let rows, cols
-
+let fieldIndex
 const step = 20
 const inc = .05
 
 
 function setup () {
-  createCanvas(500, 500)
+  createCanvas(displayWidth, displayHeight)
   zoff = 0
-  
+
   rows = floor(height/step) + 1
   cols = floor(width/step) + 1
 
@@ -23,44 +23,42 @@ function setup () {
     }
   }
 
-  for (var i = 0; i < 10; i++) {
+  for (var i = 0; i < 1000; i++) {
     particles[i] = new Particle(createVector(random(width), random(height)))
   }
-
+  
   fps = createP(floor(frameRate()))
+  background(0)
 }
 
 function draw () {
-  background(225)
+  yoff = 0
+  for (var y = 0; y < rows; y++) {
+    xoff = 0
+    for (var x = 0; x < cols; x++) {
+      xoff += inc
+      var index = y * cols + x
+      var angle = p5.Vector.fromAngle(noise(xoff, yoff, zoff) * 2 * PI)
+      field.updateAngle(index, angle)
+    }
+    yoff += inc
+    zoff += 0.0007
+  }
+
+  // field.show()
 
   for (var i = 0; i < particles.length; i++) {
     if (!paused) {
-    particles[i].update()
+      particles[i].follow(field)
+      particles[i].update()
+      particles[i].edges()
     }
     particles[i].display()
-    particles[i].edges()
   }
-
-  // this needs a changeup 
-    yoff = 0
-    for (var y = 0; y < rows; y++) {
-      xoff = 0
-      for (var x = 0; x < cols; x++) {
-        xoff += inc
-        var index = y * rows + x
-        var angle = p5.Vector.fromAngle(noise(xoff, yoff, zoff) * TWO_PI)
-        field.updateAngle(index, angle)
-      }
-      yoff += inc
-      zoff += 0.0007
-    }
-
-  field.run()
 
   fps.html(floor(frameRate()))
 }
 
 function mouseClicked() {
-  console.log(field)
   paused = !paused
 }
