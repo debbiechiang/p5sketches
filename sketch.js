@@ -1,18 +1,25 @@
 let particles = [];
 let paused = false
 let fps
+
+let repulsor
+let repulsed
+
 let field = []
 let xoff, yoff, zoff = 0
 let rows, cols
 let fieldIndex
+
 const step = 20
 const inc = .05
 
 
 function setup () {
   createCanvas(displayWidth, displayHeight)
-  zoff = 0
+  // background(0)
 
+  // Perlin noise field
+  zoff = 0
   rows = floor(height/step) + 1
   cols = floor(width/step) + 1
 
@@ -23,12 +30,18 @@ function setup () {
     }
   }
 
+  // Particles
   for (var i = 0; i < 1000; i++) {
     particles[i] = new Particle(createVector(random(width), random(height)))
   }
-  
+
+  // Repulsor
+  repulsor = new Repulsor(createVector(width/2, height/2))
+  repulsed = repulsor.repulse(field)
+
+  // console.log(p5.Vector.sub(repulsor.pos, repulsed.vec).mag())
+
   fps = createP(floor(frameRate()))
-  background(0)
 }
 
 function draw () {
@@ -45,16 +58,19 @@ function draw () {
     zoff += 0.0007
   }
 
-  // field.show()
+  background(255)
+  field.show()
 
-  for (var i = 0; i < particles.length; i++) {
-    if (!paused) {
-      particles[i].follow(field)
-      particles[i].update()
-      particles[i].edges()
-    }
-    particles[i].display()
-  }
+  repulsor.display()
+  // repulsed.paint()
+  // for (var i = 0; i < particles.length; i++) {
+  //   if (!paused) {
+  //     particles[i].follow(field)
+  //     particles[i].update()
+  //     particles[i].edges()
+  //   }
+  //   particles[i].display()
+  // }
 
   fps.html(floor(frameRate()))
 }

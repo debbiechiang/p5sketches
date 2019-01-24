@@ -24,15 +24,20 @@ class FieldPoint extends Object {
   constructor(vec) {
     super()
     this.vec = vec.copy()
+    this.painted = false
   }
 
   setZ(rotation) {
     this.vec.z = rotation
+  } 
+
+  paint(boolean) {
+    this.painted = boolean
   }
 
   display() {
     strokeWeight(1)
-    stroke(150)
+    stroke((this.painted) ? '#f00' : 150)
 
     push()
     translate(this.vec.x, this.vec.y)

@@ -45,7 +45,7 @@ class Particle extends Object {
   }
   
   display() {
-    stroke(225, 30)
+    stroke(225, 15)
     line(this.prevPos.x, this.prevPos.y, this.pos.x, this.pos.y)
     this.prevPos = this.pos.copy()
   }
