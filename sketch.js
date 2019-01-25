@@ -1,9 +1,9 @@
-let particles = [];
+let particles = []
 let paused = false
 let fps
 
+let repulsors = []
 let repulsor
-let repulsed
 
 let field = []
 let xoff, yoff, zoff = 0
@@ -16,7 +16,7 @@ const inc = .05
 
 function setup () {
   createCanvas(displayWidth, displayHeight)
-  // background(0)
+  background(255)
 
   // Perlin noise field
   zoff = 0
@@ -31,20 +31,18 @@ function setup () {
   }
 
   // Particles
-  for (var i = 0; i < 1000; i++) {
+  for (var i = 0; i < 20; i++) {
     particles[i] = new Particle(createVector(random(width), random(height)))
   }
 
   // Repulsor
-  repulsor = new Repulsor(createVector(width/2, height/2))
-  repulsed = repulsor.repulse(field)
-
-  // console.log(p5.Vector.sub(repulsor.pos, repulsed.vec).mag())
+  repulsors.push(new Repulsor(createVector(width/2, height/2)))
 
   fps = createP(floor(frameRate()))
 }
 
 function draw () {
+  // background(255)
   yoff = 0
   for (var y = 0; y < rows; y++) {
     xoff = 0
@@ -57,24 +55,31 @@ function draw () {
     yoff += inc
     zoff += 0.0007
   }
+  
+  for (var x = 0; x < repulsors.length; x++) {
+    repulsors[x].display()
+  }
 
-  background(255)
-  field.show()
+  // field.show()
 
-  repulsor.display()
-  // repulsed.paint()
-  // for (var i = 0; i < particles.length; i++) {
-  //   if (!paused) {
-  //     particles[i].follow(field)
-  //     particles[i].update()
-  //     particles[i].edges()
-  //   }
-  //   particles[i].display()
-  // }
+  for (var i = 0; i < particles.length; i++) {
+    if (!paused) {
+      particles[i].follow(field)
+      particles[i].avoid(repulsors)
+      particles[i].update()
+      particles[i].edges()
+    }
+    particles[i].display()
+  }
 
   fps.html(floor(frameRate()))
 }
 
+function mousePressed() {
+  const mousePos = createVector(mouseX, mouseY, 0)
+  repulsors.push(new Repulsor(mousePos))
+}
+
 function mouseClicked() {
-  paused = !paused
+  // paused = !paused
 }

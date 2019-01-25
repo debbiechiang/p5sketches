@@ -4,15 +4,26 @@ class Particle extends Object {
     super()
     
     this.pos = position.copy()
-    this.vel = createVector(0, 0)
+    this.vel = p5.Vector.random2D()
     this.acc = createVector(0, 0)
     this.prevPos = this.pos.copy()
   }
   
   follow(field) {
     var fieldIndex = floor(this.pos.y / step) * cols + floor(this.pos.x / step)
-    var thisForce = field.fields[fieldIndex].vec.z
+    var thisForce = field.fields[fieldIndex].rotationVector
     this.applyForce(thisForce)
+  }
+
+  avoid(repulsors) {
+    for (var i = 0; i < repulsors.length; i++) {
+      const dVec = p5.Vector.sub(repulsors[i].pos, this.pos)
+      const distance = dVec.magSq()
+      constrain(distance, 25, 500)
+      dVec.setMag(-800/distance)
+  
+      this.applyForce(dVec)
+    }
   }
   
   update() {
@@ -21,7 +32,7 @@ class Particle extends Object {
     this.vel.limit(10)
     this.acc.mult(0)
   }
-  
+   
   applyForce(force) {
     this.acc.add(force)
   }
@@ -45,8 +56,9 @@ class Particle extends Object {
   }
   
   display() {
-    stroke(225, 15)
+    stroke(0, 50)
     line(this.prevPos.x, this.prevPos.y, this.pos.x, this.pos.y)
+    // ellipse(this.pos.x, this.pos.y, 2)
     this.prevPos = this.pos.copy()
   }
 }

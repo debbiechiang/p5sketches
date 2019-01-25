@@ -25,10 +25,11 @@ class FieldPoint extends Object {
     super()
     this.vec = vec.copy()
     this.painted = false
+    this.rotationVector = createVector(0,0)
   }
 
   setZ(rotation) {
-    this.vec.z = rotation
+    this.rotationVector = rotation
   } 
 
   paint(boolean) {
@@ -41,7 +42,7 @@ class FieldPoint extends Object {
 
     push()
     translate(this.vec.x, this.vec.y)
-    rotate(this.vec.z.heading())
+    rotate(this.rotationVector.heading())
     line(0,0,20,0)
     pop()
   }
