@@ -19,8 +19,8 @@ class Particle extends Object {
     for (var i = 0; i < repulsors.length; i++) {
       const dVec = p5.Vector.sub(repulsors[i].pos, this.pos)
       const distance = dVec.magSq()
-      constrain(distance, 25, 500)
-      dVec.setMag(-800/distance)
+      constrain(distance, 300, 500)
+      dVec.setMag(-1000/distance)
   
       this.applyForce(dVec)
     }
@@ -60,5 +60,49 @@ class Particle extends Object {
     line(this.prevPos.x, this.prevPos.y, this.pos.x, this.pos.y)
     // ellipse(this.pos.x, this.pos.y, 2)
     this.prevPos = this.pos.copy()
+  }
+}
+
+class JointSystem extends Object {
+  constructor() {
+    super()
+    this.joints = []
+  }
+
+  addBodyPart(pos) {
+    this.joints.push(new Joint(pos))
+  }
+
+  updateBody(keypoints) {
+    for (let i = 0; i < keypoints.length; i++) {
+      const bodyPart = keypoints[i]
+      if(bodyPart.score > .7) {
+        this.joints[i].pos = createVector(bodyPart.position.x, bodyPart.position.y)
+        this.joints[i].show = true
+      } else {
+        this.joints[i].show = false
+      }
+    }
+  }
+
+  displayJoints() {
+    for (let i = 0; i < this.joints.length; i++) {
+      this.joints[i].display()
+    }
+  }
+}
+
+class Joint extends Particle {
+  constructor(position) {
+    super(position) 
+    this.show = false
+  }
+
+  display() {
+    if (this.show) {
+      fill(255, 0, 0) 
+      noStroke()
+      ellipse(this.pos.x * videoScale, this.pos.y * videoScale, 10) 
+    }
   }
 }
