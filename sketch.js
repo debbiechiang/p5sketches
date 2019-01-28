@@ -2,18 +2,15 @@ let particles = []
 let paused = false
 let fps
 
-let repulsors = []
-let repulsor
-
 let field = []
 let xoff, yoff, zoff = 0
 let rows, cols
 let fieldIndex
 
-const step = 20
-const inc = .05
-const keypointNum = 17
-const videoScale = 4
+const STEP = 20
+const INC = .05
+const KEYPOINT_NUM = 17
+const VIDEO_SCALE = 4
 
 let capture
 let videoLayer
@@ -24,10 +21,10 @@ function modelLoaded () {
 }
 
 function setup () {
-  createCanvas(displayWidth, displayHeight-100)
+  createCanvas(windowWidth, windowHeight-100)
   videoLayer = createGraphics(800, 800)
   capture = createCapture(VIDEO)
-  capture.size(width/videoScale, height/videoScale)
+  capture.size(width/VIDEO_SCALE, height/VIDEO_SCALE)
   capture.hide()
   poseNet = ml5.poseNet(capture, {
     imgScaleFactor: 0.3,
@@ -35,17 +32,15 @@ function setup () {
     detectionType: 'single'
   }, modelLoaded)
 
-  background(255)
-
   // Perlin noise field
   zoff = 0
-  rows = floor(height/step) + 1
-  cols = floor(width/step) + 1
+  rows = floor(height/STEP) + 1
+  cols = floor(width/STEP) + 1
 
   field = new Field();
   for (var y = 0; y < rows; y++) {
     for (var x = 0; x < cols; x++) {
-      field.addPoint(createVector(x*step, y*step, 0))
+      field.addPoint(createVector(x*STEP, y*STEP, 0))
     }
   }
 
@@ -57,7 +52,7 @@ function setup () {
   // PoseNet Keypoints
   jointSystem = new JointSystem()
 
-  for (let i = 0; i < keypointNum; i++) {
+  for (let i = 0; i < KEYPOINT_NUM; i++) {
     jointSystem.addBodyPart(createVector(0,0))
   }
 
@@ -68,31 +63,24 @@ function setup () {
     }
   })
 
-  // Repulsor
-  // repulsors.push(new Repulsor(createVector(width/2, height/2)))
-
   // Framecount
   fps = createP(floor(frameRate()))
 }
 
-
-
 function draw () {
-  // videoLayer.clear()
-
   // image(capture, 0, 0)
 
-
+  background(0)
   yoff = 0
   for (var y = 0; y < rows; y++) {
     xoff = 0
     for (var x = 0; x < cols; x++) {
-      xoff += inc
+      xoff += INC
       var index = y * cols + x
       var angle = p5.Vector.fromAngle(noise(xoff, yoff, zoff) * 2 * PI)
       field.updateAngle(index, angle)
     }
-    yoff += inc
+    yoff += INC
     zoff += 0.0007
   }
   
@@ -108,16 +96,13 @@ function draw () {
     particles[i].display()
   }
 
-  jointSystem.displayJoints()
+  // jointSystem.displayJoints()
 
   fps.html(floor(frameRate()))
 }
 
-function mousePressed() {
-  const mousePos = createVector(mouseX, mouseY, 0)
-  repulsors.push(new Repulsor(mousePos))
-}
-
 function mouseClicked() {
-  paused = !paused
+  // paused = !paused
+  blendMode(BLEND)
+  background(0)
 }
