@@ -7,6 +7,7 @@ class Particle extends Object {
     this.vel = p5.Vector.random2D()
     this.acc = createVector(0, 0)
     this.prevPos = this.pos.copy()
+    this.color = color(0, 10)
   }
   
   follow(field) {
@@ -15,14 +16,17 @@ class Particle extends Object {
     this.applyForce(thisForce)
   }
 
-  avoid(repulsors) {
-    for (var i = 0; i < repulsors.length; i++) {
-      const dVec = p5.Vector.sub(repulsors[i].pos, this.pos)
-      const distance = dVec.magSq()
-      constrain(distance, 300, 500)
-      dVec.setMag(-1000/distance)
-  
-      this.applyForce(dVec)
+  avoid(jointSystem) {
+    for (var i = 0; i < jointSystem.joints.length; i++) {
+      const thisPoint = jointSystem.joints[i];
+      // only avoid points that PoseNet recognizes. 
+      if (thisPoint.show) {
+        const dVec = p5.Vector.sub(createVector(thisPoint.pos.x * videoScale, thisPoint.pos.y * videoScale), this.pos)
+        const distance = dVec.magSq()
+        dVec.setMag(-8000/distance)
+        this.applyForce(dVec)
+
+      }
     }
   }
   
@@ -55,8 +59,8 @@ class Particle extends Object {
     }
   }
   
-  display() {
-    stroke(0, 50)
+  display(color) {
+    stroke(this.color)
     line(this.prevPos.x, this.prevPos.y, this.pos.x, this.pos.y)
     // ellipse(this.pos.x, this.pos.y, 2)
     this.prevPos = this.pos.copy()
@@ -100,7 +104,7 @@ class Joint extends Particle {
 
   display() {
     if (this.show) {
-      fill(255, 0, 0) 
+      fill(255, 57,104, 50) 
       noStroke()
       ellipse(this.pos.x * videoScale, this.pos.y * videoScale, 10) 
     }
