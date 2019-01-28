@@ -8,15 +8,18 @@ module.exports = {
   entry: {
     app: './src/sketch.js'
   },
+  devServer: {
+    contentBase: './dist',
+    watchContentBase: true
+  },
   devtool: 'inline-source-map',
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new HtmlWebpackPlugin({
       title: 'Perlin Demo'
-      // template: './src/index.html'
     }),
     new webpack.ProvidePlugin({
-      p5: 'p5'
+      p5: 'p5' // p5.dom is an addon of p5, so p5 must be loaded globally. 
     })
   ],
   module: {

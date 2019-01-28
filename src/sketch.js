@@ -98,14 +98,13 @@ let s = (sk) => {
       particles[i].display()
     }
   
-    // jointSystem.displayJoints()
+    jointSystem.displayJoints()
   
     fps.html(Math.floor(sk.frameRate()))
   }
 
   sk.mouseClicked = () => {
     // paused = !paused
-    sk.blendMode(sk.BLEND)
     sk.background(0)
   }
 }
