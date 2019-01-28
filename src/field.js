@@ -38,13 +38,13 @@ class FieldPoint extends Object {
   }
 
   display() {
-    strokeWeight(1)
-    stroke((this.painted) ? '#f00' : 150)
+    P5.strokeWeight(1)
+    P5.stroke((this.painted) ? '#f00' : 150)
 
-    push()
-    translate(this.vec.x, this.vec.y)
-    rotate(this.rotationVector.heading())
-    line(0,0,20,0)
-    pop()
+    P5.push()
+    P5.translate(this.vec.x, this.vec.y)
+    P5.rotate(this.rotationVector.heading())
+    P5.line(0,0,20,0)
+    P5.pop()
   }
 }

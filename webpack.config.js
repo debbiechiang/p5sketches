@@ -10,6 +10,7 @@ module.exports = {
   },
   devServer: {
     contentBase: './dist',
+    port: 8080,
     watchContentBase: true
   },
   devtool: 'inline-source-map',

@@ -1,4 +1,5 @@
 import 'p5/lib/addons/p5.dom.js'
+
 import ml5 from 'ml5'
 
 import { Particle, JointSystem } from './particle.js'
@@ -24,6 +25,7 @@ let jointSystem
 let s = (sk) => {
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight - 100)
+    sk.blendMode(sk.ADD)
     capture = sk.createCapture(sk.VIDEO)
     capture.size(window.innerWidth/VIDEO_SCALE, window.innerHeight/VIDEO_SCALE)
     capture.hide()
@@ -62,6 +64,12 @@ let s = (sk) => {
       if(results.length) {
         const {pose, skeleton} = results[0]
         jointSystem.updateBody(pose.keypoints)
+        if (skeleton.length > 0) {
+          const [leftShoulder, rightShoulder] = skeleton[0]
+          sk.stroke(0, 255, 0, 10)
+          sk.strokeWeight(1)
+          sk.line(leftShoulder.position.x * VIDEO_SCALE, leftShoulder.position.y * VIDEO_SCALE, rightShoulder.position.x * VIDEO_SCALE, rightShoulder.position.y * VIDEO_SCALE)
+        }
       }
     })
   
