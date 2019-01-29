@@ -7,7 +7,8 @@ module.exports = {
   mode: "development",
   entry: {
     perlin: "./src/perlin.js",
-    flock: "./src/flocking.js"
+    flock: "./src/flocking.js",
+    posenet: "./src/posenet.js"
   },
   devServer: {
     contentBase: "./dist",
@@ -28,6 +29,12 @@ module.exports = {
       inject: "body",
       chunks: ["flock"],
       filename: "flock.html"
+    }),
+    new HtmlWebpackPlugin({
+      title: "Posenet Predator",
+      inject: "body",
+      chunks: ["posenet"],
+      filename: "posenet.html"
     }),
     new webpack.ProvidePlugin({
       p5: "p5" // p5.dom is an addon of p5, so p5 must be loaded globally.

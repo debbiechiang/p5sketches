@@ -8,7 +8,7 @@ import { Hawk } from "./hawk";
 export let alignmentSlider;
 export let cohesionSlider;
 export let separationSlider;
-export let hawk;
+export let predator;
 export let flockSnapshot;
 
 let flock;
@@ -30,7 +30,7 @@ let s = sk => {
       flock.addBird(_randomPosition());
     }
 
-    hawk = new Hawk(_randomPosition());
+    predator = new Hawk(_randomPosition());
 
     alignmentSlider = sk.createSlider(0, 4, 1);
     sk.createP("Alignment");
@@ -47,7 +47,7 @@ let s = sk => {
     flockSnapshot = flock.takeSnapshot();
 
     flock.show();
-    hawk.chase(flockSnapshot);
+    predator.chase(flockSnapshot);
     frames.html(Math.floor(sk.frameRate()));
   };
 };

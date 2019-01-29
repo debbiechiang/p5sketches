@@ -3,7 +3,7 @@ import {
   alignmentSlider,
   cohesionSlider,
   separationSlider,
-  hawk
+  predator
 } from "./flocking.js";
 
 export class Bird {
@@ -26,7 +26,7 @@ export class Bird {
     const alignment = this.align(flock);
     const cohesion = this.cohere(flock);
     const separation = this.separate(flock);
-    const fear = this.flee(hawk);
+    const fear = this.flee(predator);
     const hunger = this.feed();
 
     alignment.mult(alignmentSlider.value());
