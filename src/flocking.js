@@ -2,32 +2,52 @@ import "p5/lib/addons/p5.dom.js";
 import "./sass/index.scss";
 import ml5 from "ml5";
 import clone from "lodash/clone";
-let flock;
+let flock = [];
+let hawk;
 let frames;
+let alignmentSlider;
+let cohesionSlider;
+let separationSlider;
+let dx = 15;
+let flockSnapshot;
 
 let s = sk => {
   sk.setup = () => {
-    sk.createCanvas(window.innerWidth, window.innerHeight);
+    sk.createCanvas(window.innerWidth, window.innerHeight - 100);
 
     flock = new Flock();
-
     for (var i = 0; i < 100; i++) {
       flock.addBird(
         sk.createVector(
-          Math.floor(sk.width * Math.random()),
-          Math.floor(sk.height * Math.random())
+          Math.floor(Math.random() * sk.width),
+          Math.floor(Math.random() * sk.height)
         )
       );
     }
+
+    hawk = new Hawk(
+      sk.createVector(
+        Math.floor(Math.random() * sk.width),
+        Math.floor(Math.random() * sk.height)
+      )
+    );
+
+    alignmentSlider = sk.createSlider(0, 10, 2);
+    sk.createP("Alignment");
+    cohesionSlider = sk.createSlider(0, 10, 2);
+    sk.createP("Cohesion");
+    separationSlider = sk.createSlider(0, 30, 0.2);
+    sk.createP("Separation");
 
     frames = sk.createP(Math.floor(sk.frameRate()));
   };
 
   sk.draw = () => {
     sk.background("skyblue");
+    flock.takeSnapshot();
 
     flock.show();
-
+    hawk.chase(flock.birds);
     frames.html(Math.floor(sk.frameRate()));
   };
 };
@@ -43,12 +63,16 @@ class Flock {
     this.birds.push(new Bird(pos));
   }
 
-  updatePositions(flockCopy) {
-    return this.birds.map(bird => bird.behave(flockCopy));
+  takeSnapshot() {
+    flockSnapshot = clone(this.birds);
+  }
+
+  updatePositions(flock) {
+    return this.birds.map(bird => bird.behave(flock));
   }
 
   show() {
-    let accelerations = this.updatePositions(clone(this.birds));
+    let accelerations = this.updatePositions(flockSnapshot);
     this.birds.map((bird, i) => {
       bird.edges();
       bird.acc.add(accelerations[i]);
@@ -65,8 +89,8 @@ class Bird {
     this.vel.setMag(Math.floor(Math.random() * 7) + 1);
     this.acc = FL.createVector();
 
-    this.maxSpeed = 10;
-    this.maxForce = 0.1;
+    this.maxSpeed = 8;
+    this.maxForce = 0.2;
   }
 
   behave(flock) {
@@ -74,9 +98,9 @@ class Bird {
     const cohesion = this.cohere(flock);
     const separation = this.separate(flock);
 
-    alignment.mult(5);
-    cohesion.mult(3);
-    separation.mult(2);
+    alignment.mult(alignmentSlider.value());
+    cohesion.mult(cohesionSlider.value());
+    separation.mult(separationSlider.value());
 
     return alignment.add(cohesion).add(separation);
   }
@@ -108,11 +132,11 @@ class Bird {
   }
 
   align(flock) {
-    return this._getAverage(flock, "vel", 30);
+    return this._getAverage(flock, "vel", 50);
   }
 
   cohere(flock) {
-    return this._getAverage(flock, "pos");
+    return this._getAverage(flock, "pos", 20);
   }
 
   separate(flock) {
@@ -174,5 +198,58 @@ class Bird {
     FL.rotate(this.vel.heading() + Math.PI / 2);
     this.paintBird();
     FL.pop();
+  }
+}
+
+class Hawk extends Bird {
+  constructor(position) {
+    super(position);
+    this.vel.setMag(Math.floor(Math.random() * 9) + 1);
+    this.huntingRadius = 120;
+    this.maxSpeed = 12;
+    this.maxForce = 0.8;
+  }
+
+  hunt(flock) {
+    let pursue = this._getAverage(flock, "pos", this.huntingRadius);
+    if (pursue.magSq() == 0) {
+      pursue = this.vel
+        .copy()
+        .rotate(FL.noise(dx) / 100)
+        .sub(this.vel);
+
+      this.acc.add(this.vel.copy().mult(-0.01));
+      dx += 0.01;
+    }
+    FL.push();
+    FL.translate(this.pos.x, this.pos.y);
+    FL.rotate(this.acc.heading());
+    FL.line(10, 0, this.acc.mag() * 1000, 0);
+    FL.pop();
+    return pursue;
+  }
+
+  paintBird() {
+    FL.fill(255, 0, 0);
+    FL.noStroke();
+    FL.beginShape();
+    FL.vertex(10, 0);
+    FL.vertex(20, 30);
+    FL.vertex(10, 17);
+    FL.vertex(0, 30);
+    FL.vertex(10, 0);
+    FL.endShape(FL.CLOSE);
+  }
+
+  chase(prey) {
+    hawk.edges();
+
+    let hunger = hawk.hunt(prey);
+
+    hunger.mult(2);
+
+    this.acc.add(hunger);
+    hawk.update();
+    hawk.show();
   }
 }
