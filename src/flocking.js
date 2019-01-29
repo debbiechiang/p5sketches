@@ -17,7 +17,7 @@ let s = sk => {
     sk.ellipseMode(sk.CENTER);
 
     flock = new Flock();
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < 50; i++) {
       flock.addBird(
         sk.createVector(
           Math.floor(Math.random() * sk.width),
@@ -90,7 +90,10 @@ class Bird {
     this.vel.setMag(Math.floor(Math.random() * 7) + 1);
     this.acc = FL.createVector();
 
-    this.maxSpeed = 8;
+    this.scaredCooldown = 50;
+    this.scaredColor = FL.color(244, 125, 66);
+    this.defaultColor = FL.color(131, 175, 247);
+    this.maxSpeed = 6;
     this.maxForce = 0.2;
   }
 
@@ -98,12 +101,17 @@ class Bird {
     const alignment = this.align(flock);
     const cohesion = this.cohere(flock);
     const separation = this.separate(flock);
+    const fear = this.flee(hawk);
 
     alignment.mult(alignmentSlider.value());
     cohesion.mult(cohesionSlider.value());
     separation.mult(separationSlider.value());
+    fear.mult(15);
 
-    return alignment.add(cohesion).add(separation);
+    return alignment
+      .add(cohesion)
+      .add(separation)
+      .add(fear);
   }
 
   _normalizeSteering(force, total) {
@@ -160,6 +168,28 @@ class Bird {
     return steering;
   }
 
+  flee(predator) {
+    let perceptionRadius = 100;
+    let steering = FL.createVector();
+    let total = 0;
+    let d = FL.dist(this.pos.x, this.pos.y, predator.pos.x, predator.pos.y);
+    if (d < perceptionRadius) {
+      total++;
+      this.scared = true;
+      setTimeout(() => (this.scared = false), this.scaredCooldown);
+      steering = p5.Vector.sub(this.pos, predator.pos);
+      steering.mult(500 / (d * d));
+    }
+
+    if (total) {
+      steering.setMag(this.maxSpeed * 1.5); // adrenaline
+      steering.sub(this.vel);
+      steering.limit(this.maxForce * 1.6);
+    }
+
+    return steering;
+  }
+
   edges() {
     if (this.pos.x >= FL.width) {
       this.pos.x = 0;
@@ -177,12 +207,14 @@ class Bird {
   update() {
     this.pos.add(this.vel);
     this.vel.add(this.acc);
-    this.vel.limit(this.maxSpeed);
+    if (!this.scared) {
+      this.vel.limit(this.maxSpeed);
+    }
     this.acc.mult(0);
   }
 
   paintBird() {
-    FL.fill(131, 175, 247);
+    FL.fill(this.scared ? this.scaredColor : this.defaultColor);
     FL.noStroke();
     FL.beginShape();
     FL.vertex(5, 0);
@@ -207,7 +239,7 @@ class Hawk extends Bird {
     super(position);
     this.vel.setMag(Math.floor(Math.random() * 9) + 1);
     this.huntingRadius = 120;
-    this.maxSpeed = 12;
+    this.maxSpeed = 10;
     this.maxForce = 0.8;
   }
 
@@ -227,14 +259,14 @@ class Hawk extends Bird {
     FL.rotate(this.acc.heading());
     FL.line(10, 0, this.acc.mag() * 1000, 0);
     FL.stroke(255, 0, 0);
-    FL.rotate(this.vel.heading());
-    FL.line(10, 0, this.vel.heading() * 10, 0);
+    FL.rotate(this.vel.heading() - this.acc.heading());
+    FL.line(10, 0, this.vel.heading() * 100, 0);
     FL.pop();
     return pursue;
   }
 
   paintBird() {
-    FL.fill(255, 0, 0);
+    FL.fill(124, 70, 38);
     FL.noStroke();
     FL.beginShape();
     FL.vertex(10, 0);
@@ -244,9 +276,9 @@ class Hawk extends Bird {
     FL.vertex(10, 0);
     FL.endShape(FL.CLOSE);
 
-    FL.noFill();
-    FL.stroke(0);
-    FL.ellipse(10, 15, this.huntingRadius);
+    // FL.noFill();
+    // FL.stroke(0);
+    // FL.ellipse(10, 15, this.huntingRadius);
   }
 
   chase(prey) {
