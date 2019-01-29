@@ -1,7 +1,7 @@
 import "p5/lib/addons/p5.dom.js";
 import "./sass/index.scss";
 import ml5 from "ml5";
-
+import clone from "lodash/clone";
 let flock;
 let frames;
 
@@ -11,7 +11,7 @@ let s = sk => {
 
     flock = new Flock();
 
-    for (var i = 0; i < 50; i++) {
+    for (var i = 0; i < 100; i++) {
       flock.addBird(
         sk.createVector(
           Math.floor(sk.width * Math.random()),
@@ -43,11 +43,16 @@ class Flock {
     this.birds.push(new Bird(pos));
   }
 
+  updatePositions(flockCopy) {
+    return this.birds.map(bird => bird.behave(flockCopy));
+  }
+
   show() {
-    this.birds.map(bird => {
-      bird.behave(this.birds);
-      bird.update();
+    let accelerations = this.updatePositions(clone(this.birds));
+    this.birds.map((bird, i) => {
       bird.edges();
+      bird.acc.add(accelerations[i]);
+      bird.update();
       bird.show();
     });
   }
@@ -57,11 +62,11 @@ class Bird {
   constructor(pos) {
     this.pos = pos.copy();
     this.vel = p5.Vector.random2D();
-    this.vel.setMag(5);
+    this.vel.setMag(Math.floor(Math.random() * 7) + 1);
     this.acc = FL.createVector();
 
-    this.maxSpeed = 7;
-    this.maxForce = 0.3;
+    this.maxSpeed = 10;
+    this.maxForce = 0.1;
   }
 
   behave(flock) {
@@ -69,13 +74,11 @@ class Bird {
     const cohesion = this.cohere(flock);
     const separation = this.separate(flock);
 
-    alignment.mult(4);
-    cohesion.mult(5);
-    separation.mult(3);
+    alignment.mult(5);
+    cohesion.mult(3);
+    separation.mult(2);
 
-    this.acc.add(alignment);
-    this.acc.add(cohesion);
-    this.acc.add(separation);
+    return alignment.add(cohesion).add(separation);
   }
 
   _normalizeSteering(force, total) {
@@ -105,7 +108,7 @@ class Bird {
   }
 
   align(flock) {
-    return this._getAverage(flock, "vel");
+    return this._getAverage(flock, "vel", 30);
   }
 
   cohere(flock) {
