@@ -15,26 +15,22 @@ let flock;
 let frames;
 
 let s = sk => {
+  const _randomPosition = () =>
+    sk.createVector(
+      Math.floor(Math.random() * sk.width),
+      Math.floor(Math.random() * sk.height)
+    );
+
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight - 100);
     sk.ellipseMode(sk.CENTER);
 
     flock = new Flock();
     for (var i = 0; i < 100; i++) {
-      flock.addBird(
-        sk.createVector(
-          Math.floor(Math.random() * sk.width),
-          Math.floor(Math.random() * sk.height)
-        )
-      );
+      flock.addBird(_randomPosition());
     }
 
-    hawk = new Hawk(
-      sk.createVector(
-        Math.floor(Math.random() * sk.width),
-        Math.floor(Math.random() * sk.height)
-      )
-    );
+    hawk = new Hawk(_randomPosition());
 
     alignmentSlider = sk.createSlider(0, 4, 1);
     sk.createP("Alignment");

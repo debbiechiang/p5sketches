@@ -33,7 +33,7 @@ export class Bird {
     cohesion.mult(cohesionSlider.value());
     separation.mult(separationSlider.value());
     fear.mult(15);
-    hunger.mult(3);
+    hunger.mult(1);
 
     return alignment
       .add(cohesion)
@@ -41,13 +41,6 @@ export class Bird {
       .add(hunger)
       .add(fear);
   }
-
-  // _seek(target) {
-  //   return p5.Vector.sub(target, this.pos)
-  //     .setMag(this.maxSpeed)
-  //     .sub(this.vel)
-  //     .limit(this.maxForce);
-  // }
 
   _normalizeSteering(force) {
     return force
