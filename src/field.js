@@ -1,4 +1,4 @@
-import {P5} from './sketch.js'
+import {P5} from './perlin.js'
 
 export class Field extends Object {
   constructor() {
