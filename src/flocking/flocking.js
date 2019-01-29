@@ -1,6 +1,5 @@
 import "p5/lib/addons/p5.dom.js";
-import "./sass/index.scss";
-import ml5 from "ml5";
+import "../sass/index.scss";
 
 import { Flock } from "./flock";
 import { Hawk } from "./hawk";
@@ -9,8 +8,8 @@ export let alignmentSlider;
 export let cohesionSlider;
 export let separationSlider;
 export let predator;
-export let flockSnapshot;
 
+let flockSnapshot;
 let flock;
 let frames;
 
@@ -46,7 +45,7 @@ let s = sk => {
     sk.background("skyblue");
     flockSnapshot = flock.takeSnapshot();
 
-    flock.show();
+    flock.show(flockSnapshot);
     predator.chase(flockSnapshot);
     frames.html(Math.floor(sk.frameRate()));
   };

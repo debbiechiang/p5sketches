@@ -1,5 +1,4 @@
 import clone from "lodash/clone";
-import { flockSnapshot } from "./flocking";
 
 import { Bird } from "./bird";
 
@@ -12,16 +11,22 @@ export class Flock {
     this.birds.push(new Bird(pos));
   }
 
+  // flee(bodyParts) {
+  //   this.birds.map(bird => {
+  //     bird.flee(bodyParts);
+  //   });
+  // }
+
   takeSnapshot() {
     return clone(this.birds);
   }
 
-  updatePositions(flock) {
-    return this.birds.map(bird => bird.behave(flock));
+  updatePositions(config) {
+    return this.birds.map(bird => bird.behave(config));
   }
 
-  show() {
-    let accelerations = this.updatePositions(flockSnapshot);
+  show(config) {
+    let accelerations = this.updatePositions(config);
     this.birds.map((bird, i) => {
       bird.edges();
       bird.acc.add(accelerations[i]);

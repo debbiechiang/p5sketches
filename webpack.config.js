@@ -7,8 +7,8 @@ module.exports = {
   mode: "development",
   entry: {
     perlin: "./src/perlin.js",
-    flock: "./src/flocking.js",
-    posenet: "./src/posenet.js"
+    flock: "./src/flocking/flocking.js",
+    posenet: "./src/posenet/posenet.js"
   },
   devServer: {
     contentBase: "./dist",

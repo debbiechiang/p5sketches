@@ -1,0 +1,31 @@
+import clone from "lodash/clone";
+
+import { Bird } from "./bird";
+
+export class Flock {
+  constructor() {
+    this.birds = [];
+  }
+
+  addBird(pos) {
+    this.birds.push(new Bird(pos));
+  }
+
+  takeSnapshot() {
+    return clone(this.birds);
+  }
+
+  updatePositions(flock) {
+    return this.birds.map(bird => bird.behave(flock));
+  }
+
+  show(flockSnapshot) {
+    let accelerations = this.updatePositions(flockSnapshot);
+    this.birds.map((bird, i) => {
+      bird.edges();
+      bird.acc.add(accelerations[i]);
+      bird.update();
+      bird.show();
+    });
+  }
+}
