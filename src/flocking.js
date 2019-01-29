@@ -14,6 +14,7 @@ let flockSnapshot;
 let s = sk => {
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight - 100);
+    sk.ellipseMode(sk.CENTER);
 
     flock = new Flock();
     for (var i = 0; i < 100; i++) {
@@ -47,7 +48,7 @@ let s = sk => {
     flock.takeSnapshot();
 
     flock.show();
-    hawk.chase(flock.birds);
+    hawk.chase(flockSnapshot);
     frames.html(Math.floor(sk.frameRate()));
   };
 };
@@ -225,6 +226,9 @@ class Hawk extends Bird {
     FL.translate(this.pos.x, this.pos.y);
     FL.rotate(this.acc.heading());
     FL.line(10, 0, this.acc.mag() * 1000, 0);
+    FL.stroke(255, 0, 0);
+    FL.rotate(this.vel.heading());
+    FL.line(10, 0, this.vel.heading() * 10, 0);
     FL.pop();
     return pursue;
   }
@@ -239,6 +243,10 @@ class Hawk extends Bird {
     FL.vertex(0, 30);
     FL.vertex(10, 0);
     FL.endShape(FL.CLOSE);
+
+    FL.noFill();
+    FL.stroke(0);
+    FL.ellipse(10, 15, this.huntingRadius);
   }
 
   chase(prey) {
