@@ -1,11 +1,8 @@
 import "p5/lib/addons/p5.dom.js";
-
-import ml5 from "ml5";
-
-import { Particle, JointSystem } from "./particle.js";
+import { ParticleList, Particle } from "./particle.js";
 import { Field } from "./field.js";
 
-let particles = [];
+let particles;
 let paused = false;
 let fps;
 
@@ -20,25 +17,11 @@ export const INC = 0.05;
 export const KEYPOINT_NUM = 17;
 export const VIDEO_SCALE = 4;
 
-let capture;
-let poseNet;
-let jointSystem;
-
 let s = sk => {
+  sk.toggleFlow = true;
   sk.setup = () => {
     sk.createCanvas(window.innerWidth, window.innerHeight - 100);
-    sk.blendMode(sk.ADD);
-    capture = sk.createCapture(sk.VIDEO);
-    capture.size(
-      window.innerWidth / VIDEO_SCALE,
-      window.innerHeight / VIDEO_SCALE
-    );
-    capture.hide();
-    poseNet = ml5.poseNet(capture, {
-      imgScaleFactor: 0.3,
-      flipHorizontal: true,
-      detectionType: "single"
-    });
+    // sk.blendMode(sk.ADD);
 
     // Perlin noise field
     zoff = 0;
@@ -52,9 +35,12 @@ let s = sk => {
       }
     }
 
+    particles = new ParticleList();
+    particles.attach(field);
+
     // Particles
     for (var i = 0; i < 200; i++) {
-      particles[i] = new Particle(
+      particles.addParticle(
         sk.createVector(
           Math.floor(sk.width * Math.random()),
           Math.floor(sk.height * Math.random())
@@ -62,39 +48,13 @@ let s = sk => {
       );
     }
 
-    // PoseNet Keypoints
-    jointSystem = new JointSystem();
-
-    for (let i = 0; i < KEYPOINT_NUM; i++) {
-      jointSystem.addBodyPart(sk.createVector(0, 0));
-    }
-
-    poseNet.on("pose", function(results) {
-      if (results.length) {
-        const { pose, skeleton } = results[0];
-        jointSystem.updateBody(pose.keypoints);
-        if (skeleton.length > 0) {
-          const [leftShoulder, rightShoulder] = skeleton[0];
-          sk.stroke(0, 255, 0, 10);
-          sk.strokeWeight(1);
-          sk.line(
-            leftShoulder.position.x * VIDEO_SCALE,
-            leftShoulder.position.y * VIDEO_SCALE,
-            rightShoulder.position.x * VIDEO_SCALE,
-            rightShoulder.position.y * VIDEO_SCALE
-          );
-        }
-      }
-    });
-
     // Framecount
     fps = sk.createP(Math.floor(sk.frameRate()));
   };
 
   sk.draw = () => {
-    // image(capture, 0, 0)
-
     sk.background(0);
+
     yoff = 0;
     for (var y = 0; y < rows; y++) {
       xoff = 0;
@@ -109,27 +69,22 @@ let s = sk => {
       yoff += INC;
       zoff += 0.0007;
     }
-
-    // field.show()
-
-    for (var i = 0; i < particles.length; i++) {
-      if (!paused) {
-        particles[i].follow(field);
-        particles[i].avoid(jointSystem);
-        particles[i].update();
-        particles[i].edges();
-      }
-      particles[i].display();
+    if (sk.toggleFlow) {
+      // Smoky view
+      sk.blendMode(sk.ADD);
+      particles.show(true);
+    } else {
+      // Perlin field view
+      sk.blendMode(sk.BLEND);
+      field.show();
+      // particles.show(false);
     }
-
-    jointSystem.displayJoints();
 
     fps.html(Math.floor(sk.frameRate()));
   };
 
   sk.mouseClicked = () => {
-    // paused = !paused
-    sk.background(0);
+    sk.toggleFlow = !sk.toggleFlow;
   };
 };
 

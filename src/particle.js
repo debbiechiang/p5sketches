@@ -1,9 +1,33 @@
-import { P5, VIDEO_SCALE, STEP, cols, rows } from "./perlin.js";
+import { P5, VIDEO_SCALE, STEP, cols } from "./perlin.js";
 
-export class Particle extends Object {
+export class ParticleList {
+  constructor() {
+    this.particles = [];
+    this.paused = false;
+  }
+
+  addParticle(pos) {
+    this.particles.push(new Particle(pos));
+  }
+
+  attach(field) {
+    this.field = field;
+  }
+
+  show() {
+    for (let particle of this.particles) {
+      if (!this.paused) {
+        particle.follow(this.field);
+        particle.update();
+        particle.edges();
+      }
+      particle.display();
+    }
+  }
+}
+
+export class Particle {
   constructor(position) {
-    super();
-
     this.pos = position.copy();
     this.vel = p5.Vector.random2D();
     this.acc = P5.createVector(0, 0);
@@ -18,29 +42,29 @@ export class Particle extends Object {
     this.applyForce(thisForce);
   }
 
-  avoid(jointSystem) {
-    for (var i = 0; i < jointSystem.joints.length; i++) {
-      const thisPoint = jointSystem.joints[i];
-      // only avoid points that PoseNet recognizes.
-      if (thisPoint.show) {
-        const dVec = p5.Vector.sub(
-          P5.createVector(
-            thisPoint.pos.x * VIDEO_SCALE,
-            thisPoint.pos.y * VIDEO_SCALE
-          ),
-          this.pos
-        );
-        const distance = dVec.magSq();
+  // avoid(jointSystem) {
+  //   for (var i = 0; i < jointSystem.joints.length; i++) {
+  //     const thisPoint = jointSystem.joints[i];
+  //     // only avoid points that PoseNet recognizes.
+  //     if (thisPoint.show) {
+  //       const dVec = p5.Vector.sub(
+  //         P5.createVector(
+  //           thisPoint.pos.x * VIDEO_SCALE,
+  //           thisPoint.pos.y * VIDEO_SCALE
+  //         ),
+  //         this.pos
+  //       );
+  //       const distance = dVec.magSq();
 
-        if (distance < 1000) {
-          this.color = P5.color(200, 100, 30, 10);
-        }
+  //       if (distance < 1000) {
+  //         this.color = P5.color(200, 100, 30, 10);
+  //       }
 
-        dVec.setMag(-8000 / distance);
-        this.applyForce(dVec);
-      }
-    }
-  }
+  //       dVec.setMag(-8000 / distance);
+  //       this.applyForce(dVec);
+  //     }
+  //   }
+  // }
 
   update() {
     this.vel.add(this.acc);
@@ -72,10 +96,8 @@ export class Particle extends Object {
   }
 
   display() {
-    P5.blendMode(P5.ADD);
     P5.stroke(this.color);
     P5.line(this.prevPos.x, this.prevPos.y, this.pos.x, this.pos.y);
-    // ellipse(this.pos.x, this.pos.y, 2)
     this.prevPos = this.pos.copy();
   }
 }
