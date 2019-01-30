@@ -11,12 +11,6 @@ export class Flock {
     this.birds.push(new Bird(pos));
   }
 
-  // flee(bodyParts) {
-  //   this.birds.map(bird => {
-  //     bird.flee(bodyParts);
-  //   });
-  // }
-
   takeSnapshot() {
     return clone(this.birds);
   }

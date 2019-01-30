@@ -4,10 +4,6 @@ import ml5 from "ml5";
 
 import { Flock } from "./flock";
 
-export let alignmentSlider;
-export let cohesionSlider;
-export let separationSlider;
-// export let predator;
 let flockSnapshot;
 
 let flock;
@@ -17,8 +13,9 @@ let frames;
 let capture;
 let poseNet;
 export let jointSystem;
-const VIDEO_SCALE = 5;
-const KEYPOINT_NUM = 17;
+const VIDEO_SCALE = 4;
+const KEYPOINT_NUM = 10;
+const NUMBER_OF_BIRDS = 200;
 
 let s = sk => {
   const _randomPosition = () =>
@@ -37,21 +34,15 @@ let s = sk => {
     );
     capture.hide();
     poseNet = ml5.poseNet(capture, {
-      imgScaleFactor: 0.3,
+      imageScaleFactor: 0.5,
       flipHorizontal: true,
-      detectionType: "single"
+      detectionType: "single",
+      multiplier: 0.5
     });
-
-    alignmentSlider = sk.createSlider(0, 4, 1);
-    sk.createP("Alignment");
-    cohesionSlider = sk.createSlider(0, 4, 1);
-    sk.createP("Cohesion");
-    separationSlider = sk.createSlider(0, 10, 3);
-    sk.createP("Separation");
 
     // Flocking Controls
     flock = new Flock();
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < NUMBER_OF_BIRDS; i++) {
       flock.addBird(_randomPosition());
     }
 
@@ -65,22 +56,23 @@ let s = sk => {
     poseNet.on("pose", function(results) {
       if (results.length) {
         const { pose, skeleton } = results[0];
-        jointSystem.updateJoints(pose.keypoints);
+        jointSystem.updateJoints(pose.keypoints.slice(0, KEYPOINT_NUM));
       }
     });
+
     frames = sk.createP(Math.floor(sk.frameRate()));
   };
 
   sk.draw = () => {
     sk.background("skyblue");
+    // sk.image(capture, 0, 0);
     flockSnapshot = flock.takeSnapshot();
     flock.show({
       flock: flockSnapshot,
       predators: jointSystem.getJointsToBeAfraidOf()
     });
-    // flock.flee(jointSystem.getJointsToBeAfraidOf());
     // predator.chase(flockSnapshot);
-    // jointSystem.show();
+    jointSystem.show();
     frames.html(Math.floor(sk.frameRate()));
   };
 };
@@ -97,8 +89,24 @@ class JointSystem {
   }
 
   getJointsToBeAfraidOf() {
-    // return this.joints.slice(9, 11); // 9: leftWrist, 10: rightWrist
-    return this.joints.slice(1, 3); // leftEye, rightEye
+    // 0	nose
+    // 1	leftEye
+    // 2	rightEye
+    // 3	leftEar
+    // 4	rightEar
+    // 5	leftShoulder
+    // 6	rightShoulder
+    // 7	leftElbow
+    // 8	rightElbow
+    // 9	leftWrist
+    // 10	rightWrist
+    // 11	leftHip
+    // 12	rightHip
+    // 13	leftKnee
+    // 14	rightKnee
+    // 15	leftAnkle
+    // 16	rightAnkle
+    return this.joints.slice(7, 10);
   }
 
   updateJoints(keypoints) {
@@ -107,9 +115,29 @@ class JointSystem {
     });
   }
 
+  connect(arr) {
+    return arr
+      .reduce((acc, curr) => {
+        if (this.joints[curr].visible) {
+          return [
+            ...acc,
+            PN.vertex(this.joints[curr].pos.x, this.joints[curr].pos.y)
+          ];
+        }
+        return acc;
+      }, [])
+      .join();
+  }
+
   show() {
-    // this.joints.forEach(joint => joint.show());
-    this.getJointsToBeAfraidOf().forEach(joint => joint.show());
+    this.joints.forEach(joint => joint.show());
+
+    PN.strokeWeight(4);
+    PN.stroke(15, 20);
+    PN.noFill();
+    PN.beginShape();
+    this.connect([3, 1, 0, 2, 4]);
+    PN.endShape();
   }
 }
 
@@ -124,12 +152,6 @@ class Joint {
   }
 
   updatePosition(bodyPart) {
-    // if (bodyPart.part === "rightWrist" && bodyPart.score > 0.5) {
-    //   console.log(bodyPart);
-    // }
-    if (!this.part) {
-      this.part = bodyPart.part;
-    }
     if (bodyPart.score > this.confidenceThreshold) {
       this.pos.x = bodyPart.position.x * VIDEO_SCALE;
       this.pos.y = bodyPart.position.y * VIDEO_SCALE;
@@ -141,9 +163,9 @@ class Joint {
 
   show() {
     if (this.visible) {
-      PN.fill(255, 57, 104);
+      PN.fill(255, 57, 104, 80);
       PN.noStroke();
-      PN.ellipse(this.pos.x, this.pos.y, 10);
+      PN.ellipse(this.pos.x, this.pos.y, 20);
     }
   }
 }

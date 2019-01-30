@@ -2,8 +2,7 @@ import {
   PN,
   alignmentSlider,
   cohesionSlider,
-  separationSlider,
-  jointSystem
+  separationSlider
 } from "./posenet.js";
 
 export class Bird {
@@ -18,7 +17,7 @@ export class Bird {
     this.scaredColor = PN.color(244, 125, 66);
     this.defaultColor = PN.color(131, 175, 247);
 
-    this.maxSpeed = 6;
+    this.maxSpeed = 15;
     this.maxForce = 0.2;
   }
 
@@ -26,11 +25,11 @@ export class Bird {
     const alignment = this.align(flock);
     const cohesion = this.cohere(flock);
     const separation = this.separate(flock);
-    const hunger = this.feed();
+    const hunger = this.feed(predators[0].pos);
 
-    alignment.mult(alignmentSlider.value());
-    cohesion.mult(cohesionSlider.value());
-    separation.mult(separationSlider.value());
+    alignment.mult(4);
+    cohesion.mult(2);
+    separation.mult(8);
     hunger.mult(1);
 
     if (predators && predators[0].pos.x !== 0) {
@@ -122,7 +121,7 @@ export class Bird {
   }
 
   flee(bodyParts) {
-    let perceptionRadius = 80;
+    let perceptionRadius = 200;
     let steering = PN.createVector();
     let total = 0;
 
@@ -146,8 +145,8 @@ export class Bird {
     return steering;
   }
 
-  feed() {
-    let food = PN.createVector(PN.mouseX, PN.mouseY);
+  feed(position) {
+    let food = position.copy();
     let perceptionRadius = 300;
     let steering = PN.createVector();
 
@@ -201,7 +200,7 @@ export class Bird {
     PN.translate(this.pos.x, this.pos.y);
     PN.rotate(this.vel.heading() + Math.PI / 2);
     PN.fill(this.scared ? this.scaredColor : this.defaultColor);
-    this.paintBird(10, 20);
+    this.paintBird(20, 40);
     PN.pop();
   }
 }
