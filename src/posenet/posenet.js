@@ -55,7 +55,7 @@ let s = sk => {
 
     poseNet.on("pose", function(results) {
       if (results.length) {
-        const { pose, skeleton } = results[0];
+        const { pose } = results[0];
         jointSystem.updateJoints(pose.keypoints.slice(0, KEYPOINT_NUM));
       }
     });
@@ -71,7 +71,6 @@ let s = sk => {
       flock: flockSnapshot,
       predators: jointSystem.getJointsToBeAfraidOf()
     });
-    // predator.chase(flockSnapshot);
     jointSystem.show();
     frames.html(Math.floor(sk.frameRate()));
   };
@@ -136,6 +135,7 @@ class JointSystem {
     PN.stroke(15, 20);
     PN.noFill();
     PN.beginShape();
+    // leftEar, leftEye, nose, rightEye, rightEar
     this.connect([3, 1, 0, 2, 4]);
     PN.endShape();
   }

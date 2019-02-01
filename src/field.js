@@ -44,7 +44,7 @@ class FieldPoint extends Object {
     P5.push();
     P5.translate(this.vec.x, this.vec.y);
     P5.rotate(this.rotationVector.heading());
-    P5.line(0, 0, 20, 0);
+    P5.line(0, 0, 40, 0);
     P5.pop();
   }
 }

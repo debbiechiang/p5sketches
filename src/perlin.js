@@ -12,7 +12,7 @@ let yoff = 0;
 let zoff = 0;
 export let rows, cols;
 
-export const STEP = 20;
+export const STEP = 40;
 export const INC = 0.05;
 export const KEYPOINT_NUM = 17;
 export const VIDEO_SCALE = 4;
@@ -20,7 +20,7 @@ export const VIDEO_SCALE = 4;
 let s = sk => {
   sk.toggleFlow = true;
   sk.setup = () => {
-    sk.createCanvas(window.innerWidth, window.innerHeight - 100);
+    sk.createCanvas(window.innerWidth, window.innerHeight);
     // sk.blendMode(sk.ADD);
 
     // Perlin noise field
@@ -55,6 +55,7 @@ let s = sk => {
   sk.draw = () => {
     sk.background(0);
 
+    // Refactor this into a 2D matrix
     yoff = 0;
     for (var y = 0; y < rows; y++) {
       xoff = 0;

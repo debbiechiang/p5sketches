@@ -37,14 +37,7 @@ export class Hawk extends Bird {
       this.acc.add(this.vel.copy().mult(-0.01));
       dx += 0.01;
     }
-    // FL.push();
-    // FL.translate(this.pos.x, this.pos.y);
-    // FL.rotate(this.acc.heading());
-    // FL.line(10, 0, this.acc.mag() * 1000, 0);
-    // FL.stroke(255, 0, 0);
-    // FL.rotate(this.vel.heading() - this.acc.heading());
-    // FL.line(10, 0, this.vel.heading() * 100, 0);
-    // FL.pop();
+
     return steering;
   }
 

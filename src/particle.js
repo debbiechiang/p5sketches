@@ -32,7 +32,7 @@ export class Particle {
     this.vel = p5.Vector.random2D();
     this.acc = P5.createVector(0, 0);
     this.prevPos = this.pos.copy();
-    this.color = P5.color(225, 10);
+    this.color = P5.color(225, 15);
   }
 
   follow(field) {
@@ -41,30 +41,6 @@ export class Particle {
     var thisForce = field.fields[fieldIndex].rotationVector;
     this.applyForce(thisForce);
   }
-
-  // avoid(jointSystem) {
-  //   for (var i = 0; i < jointSystem.joints.length; i++) {
-  //     const thisPoint = jointSystem.joints[i];
-  //     // only avoid points that PoseNet recognizes.
-  //     if (thisPoint.show) {
-  //       const dVec = p5.Vector.sub(
-  //         P5.createVector(
-  //           thisPoint.pos.x * VIDEO_SCALE,
-  //           thisPoint.pos.y * VIDEO_SCALE
-  //         ),
-  //         this.pos
-  //       );
-  //       const distance = dVec.magSq();
-
-  //       if (distance < 1000) {
-  //         this.color = P5.color(200, 100, 30, 10);
-  //       }
-
-  //       dVec.setMag(-8000 / distance);
-  //       this.applyForce(dVec);
-  //     }
-  //   }
-  // }
 
   update() {
     this.vel.add(this.acc);
